@@ -47,7 +47,7 @@ const FORM_MAJELIS = [
   ]},
   {t: 'Data Pasangan & Orang Tua', f: [
     {l:'Nama Ayah', k:'namaAyah'}, {l:'Nama Ibu', k:'namaIbu'}, {l:'Nama Suami/Istri', k:'namaPasangan'}, {l:'Tempat Lahir Pasangan', k:'tempatLahirPasangan'}, {l:'Tgl Lahir Pasangan', k:'tanggalLahirPasangan', t:'date'}, {l:'Pekerjaan Pasangan', k:'pekerjaanPasangan', t:'sel', opts:PEKERJAAN_LIST},
-    {l:'Gereja Baptis Pasangan', k:'gerejaBaptisPasangan'}, {l:'Tgl Baptis Pasangan', k:'tanggalBaptis Pasangan', t:'date'}, {l:'Gereja Sidi Pasangan', k:'gerejaSidiPasangan'}, {l:'Tgl Sidi Pasangan', k:'tanggalSidiPasangan', t:'date'}
+    {l:'Gereja Baptis Pasangan', k:'gerejaBaptis Pasangan'}, {l:'Tgl Baptis Pasangan', k:'tanggalBaptis Pasangan', t:'date'}, {l:'Gereja Sidi Pasangan', k:'gerejaSidiPasangan'}, {l:'Tgl Sidi Pasangan', k:'tanggalSidiPasangan', t:'date'}
   ]},
   {t: 'Pendidikan & Pelayanan', f: [
     {l:'Nama SD', k:'namaSD'}, {l:'Tahun SD', k:'tahunSD', t:'num'}, {l:'Nama SMP', k:'namaSMP'}, {l:'Tahun SMP', k:'tahunSMP', t:'num'}, {l:'Nama SMA', k:'namaSMA'}, {l:'Tahun SMA', k:'tahunSMA', t:'num'}, {l:'Nama PT', k:'namaPT'}, {l:'Tahun PT', k:'tahunPT', t:'num'},
@@ -56,7 +56,7 @@ const FORM_MAJELIS = [
 ];
 
 const JEMAAT_FIELDS_PRIBADI = [
-  { name: 'noAnggota', label: 'No Anggota Keluarga Ke-', type: 'select', req: true, opts: [] }, // Opts di-inject dinamis
+  { name: 'noAnggota', label: 'No Anggota Keluarga Ke-', type: 'select', req: true, opts: [] },
   { name: 'namaLengkap', label: 'Nama Lengkap', req: true }, { name: 'nik', label: 'NIK' }, { name: 'jk', label: 'Jenis Kelamin', type: 'select', opts: ['Laki-laki', 'Perempuan'] },
   { name: 'goldar', label: 'Golongan Darah', type: 'select', opts: ['A', 'B', 'AB', 'O', 'Tidak Tahu'] }, { name: 'tempatLahir', label: 'Tempat Lahir' }, { name: 'tanggalLahir', label: 'Tanggal Lahir', type: 'date' },
   { name: 'alamat', label: 'Alamat Domisili Lengkap', span: 2 }, { name: 'sukuAyah', label: 'Suku Ayah' }, { name: 'sukuIbu', label: 'Suku Ibu' },
@@ -244,7 +244,7 @@ function InfografisTab({ data, filterRayon, type }) {
   );
 }
 
-function PrintKkTemplate({ kkToPrint, jemaatData, penatuaMap, onBack }) {
+function PrintKkTemplate({ kkToPrint, jemaatData, penatuaMap, profilGereja, onBack }) {
   if (!kkToPrint) return null;
   const dataKk = jemaatData.find(d => d.idKk === kkToPrint && d.statusKeluarga === 'Kepala Keluarga');
   const anggotaKk = jemaatData.filter(d => d.idKk === kkToPrint && d.statusKeanggotaan !== 'Meninggal' && d.statusKeanggotaan !== 'Pindah').sort((a,b) => parseInt(a.noAnggota) - parseInt(b.noAnggota));
@@ -254,10 +254,18 @@ function PrintKkTemplate({ kkToPrint, jemaatData, penatuaMap, onBack }) {
   return (
     <div className="w-full bg-white text-black p-4 text-[11px] font-sans">
        <style type="text/css">{"@page { size: landscape; margin: 10mm; }"}</style>
-       <div className="flex justify-between items-center mb-4 border-b-2 border-black pb-2">
-          <div><h1 className="text-xl font-bold uppercase tracking-wider">GEREJA MASEHI INJILI DI TIMOR (GMIT)</h1><h2 className="text-lg font-bold uppercase">DATA JEMAAT GMIT - PNIEL NOELAKU</h2></div>
-          <div className="text-right"><img src="https://i.imgur.com/XV3hpOH.png" alt="Logo" className="w-16 h-16 object-contain" /></div>
+       <div className="flex justify-between items-center border-b-4 border-double border-black pb-4 mb-4 relative">
+          <div className="w-24 text-left"><img src="https://i.imgur.com/XV3hpOH.png" alt="Logo" className="w-20 h-20 object-contain mx-auto" /></div>
+          <div className="flex-1 text-center">
+             <h2 className="text-xl font-bold uppercase leading-tight">{profilGereja?.namaSinode || 'GEREJA MASEHI INJILI DI TIMOR'}</h2>
+             <h3 className="text-lg font-bold uppercase leading-tight">{profilGereja?.namaKlasis}</h3>
+             <h3 className="text-lg font-bold uppercase leading-tight">{profilGereja?.namaJemaat}</h3>
+             {profilGereja?.namaMataJemaat && <h4 className="text-md font-semibold uppercase leading-tight">{profilGereja?.namaMataJemaat}</h4>}
+          </div>
+          <div className="w-24"></div> {/* Spacer untuk keseimbangan center */}
        </div>
+       
+       <h1 className="text-2xl font-black text-center uppercase tracking-wider mb-6 underline">KARTU KELUARGA JEMAAT</h1>
        <div className="grid grid-cols-3 gap-2 mb-4 text-xs">
           <div>
             <div className="flex"><span className="w-32 font-bold">Nama Kepala Keluarga</span><span>: {safeStr(dataKk.kepalaKeluarga)}</span></div>
@@ -316,7 +324,7 @@ function PrintKkTemplate({ kkToPrint, jemaatData, penatuaMap, onBack }) {
   );
 }
 
-function PrintMajelisTemplate({ majelisToPrint, majelisData, penatuaMap, onBack }) {
+function PrintMajelisTemplate({ majelisToPrint, majelisData, penatuaMap, profilGereja, onBack }) {
   if (!majelisToPrint) return null;
   const mj = majelisData.find(m => m.dbId === majelisToPrint);
   if (!mj) return null;
@@ -326,7 +334,18 @@ function PrintMajelisTemplate({ majelisToPrint, majelisData, penatuaMap, onBack 
   return (
     <div className="w-full bg-white text-black p-8 text-sm font-sans max-w-4xl mx-auto border shadow-lg print:border-none print:shadow-none print:m-0 print:p-0">
        <style type="text/css">{"@page { size: portrait; margin: 15mm; }"}</style>
-       <div className="text-center mb-6 border-b-4 border-double border-black pb-4"><img src="https://i.imgur.com/XV3hpOH.png" alt="Logo" className="w-20 h-20 mx-auto mb-2" /><h1 className="text-2xl font-black uppercase">PROFIL PELAYAN / MAJELIS JEMAAT</h1><h2 className="text-lg font-bold uppercase">PNIEL NOELAKU - RAYON {safeStr(mj.noRayon)}</h2></div>
+       <div className="flex justify-between items-start mb-6 border-b-4 border-double border-black pb-4 relative">
+          <div className="w-24"></div>
+          <div className="flex-1 text-center">
+             <h1 className="text-2xl font-black uppercase tracking-wider mb-3 underline">PROFIL PELAYAN / MAJELIS JEMAAT</h1>
+             <h2 className="text-lg font-bold uppercase leading-tight">{profilGereja?.namaSinode || 'GEREJA MASEHI INJILI DI TIMOR'}</h2>
+             <h3 className="text-md font-bold uppercase leading-tight">{profilGereja?.namaKlasis}</h3>
+             <h3 className="text-md font-bold uppercase leading-tight">{profilGereja?.namaJemaat}</h3>
+             {profilGereja?.namaMataJemaat && <h4 className="text-sm font-semibold uppercase leading-tight">{profilGereja?.namaMataJemaat}</h4>}
+             <p className="mt-3 font-bold bg-gray-200 inline-block px-4 py-1 border border-black uppercase">RAYON {safeStr(mj.noRayon)}</p>
+          </div>
+          <div className="w-24 text-right"><img src="https://i.imgur.com/XV3hpOH.png" alt="Logo" className="w-20 h-20 object-contain mx-auto" /></div>
+       </div>
        <div className="flex gap-8 mb-6">
           <div className="w-1/4">
              <div className="w-32 h-40 border-2 border-black p-1 bg-gray-50 flex items-center justify-center overflow-hidden">
@@ -380,7 +399,7 @@ function PrintMajelisTemplate({ majelisToPrint, majelisData, penatuaMap, onBack 
        </div>
        
        <div className="mt-10 text-right pr-8 text-sm">
-          <p className="mb-16">PNIEL NOELAKU, {getFormatDate()}</p>
+          <p className="mb-16">{profilGereja.namaMataJemaat || profilGereja.namaJemaat}, {getFormatDate()}</p>
           <p className="font-bold underline uppercase">{safeStr(mj.namaLengkap)}</p>
           <p>Pelayan / Majelis</p>
        </div>
@@ -392,18 +411,24 @@ function PrintMajelisTemplate({ majelisToPrint, majelisData, penatuaMap, onBack 
   );
 }
 
-function PrintListTemplate({ listToPrint, tabCols, filteredData, filterRayon, filterKategori, onBack }) {
+function PrintListTemplate({ listToPrint, tabCols, filteredData, filterRayon, filterKategori, profilGereja, onBack }) {
   if (!listToPrint) return null;
   const b = "border border-black p-2";
 
   return (
     <div className="block w-full bg-white text-black p-8 text-sm font-sans max-w-5xl mx-auto border shadow-lg print:border-none print:shadow-none print:m-0 print:p-0">
        <style type="text/css">{"@page { size: landscape; margin: 15mm; }"}</style>
-       <div className="text-center mb-6 border-b-4 border-double border-black pb-4">
-          <img src="https://i.imgur.com/XV3hpOH.png" alt="Logo" className="w-20 h-20 mx-auto mb-2" />
-          <h1 className="text-2xl font-black uppercase">LAPORAN DATA {safeStr(listToPrint).toUpperCase()}</h1>
-          <h2 className="text-lg font-bold uppercase">PNIEL NOELAKU</h2>
-          <p className="font-semibold mt-2">Filter: Rayon {safeStr(filterRayon)} {listToPrint === 'Pelayanan Kategori' ? `| Kategori: ${safeStr(filterKategori)}` : ''}</p>
+       <div className="flex justify-between items-start mb-6 border-b-4 border-double border-black pb-4 relative">
+          <div className="w-24"></div>
+          <div className="flex-1 text-center">
+             <h1 className="text-2xl font-black uppercase tracking-wider mb-3 underline">LAPORAN DATA {safeStr(listToPrint).toUpperCase()}</h1>
+             <h2 className="text-lg font-bold uppercase leading-tight">{profilGereja?.namaSinode || 'GEREJA MASEHI INJILI DI TIMOR'}</h2>
+             <h3 className="text-md font-bold uppercase leading-tight">{profilGereja?.namaKlasis}</h3>
+             <h3 className="text-md font-bold uppercase leading-tight">{profilGereja?.namaJemaat}</h3>
+             {profilGereja?.namaMataJemaat && <h4 className="text-sm font-semibold uppercase leading-tight">{profilGereja?.namaMataJemaat}</h4>}
+             <p className="font-semibold mt-3 bg-gray-100 inline-block px-4 py-1 border border-black">Filter: Rayon {safeStr(filterRayon)} {listToPrint === 'Pelayanan Kategori' ? `| Kategori: ${safeStr(filterKategori)}` : ''}</p>
+          </div>
+          <div className="w-24 text-right"><img src="https://i.imgur.com/XV3hpOH.png" alt="Logo" className="w-20 h-20 object-contain mx-auto" /></div>
        </div>
        <table className="w-full border-collapse border border-black text-xs text-center mb-8">
           <thead className="bg-gray-100">
@@ -422,14 +447,14 @@ function PrintListTemplate({ listToPrint, tabCols, filteredData, filterRayon, fi
              {(!filteredData || filteredData.length === 0) && (<tr><td colSpan={tabCols.length+1} className="border border-black p-4 italic text-gray-500">Tidak ada data.</td></tr>)}
           </tbody>
        </table>
-       <div className="flex justify-end mt-10 pr-8 text-sm"><div className="text-center"><p className="mb-16">PNIEL NOELAKU, {getFormatDate()}</p><p className="font-bold underline uppercase">Majelis Jemaat</p></div></div>
+       <div className="flex justify-end mt-10 pr-8 text-sm"><div className="text-center"><p className="mb-16">{profilGereja.namaMataJemaat || profilGereja.namaJemaat}, {getFormatDate()}</p><p className="font-bold underline uppercase">Majelis Jemaat</p></div></div>
        <div className="flex items-center justify-center mt-8 gap-4 no-print"><button onClick={() => window.print()} className="px-4 py-2 bg-blue-600 font-bold text-white rounded shadow">🖨️ Tekan Untuk Cetak Kertas Ini</button><button onClick={onBack} className="px-4 py-2 bg-gray-500 font-bold text-white rounded shadow"><ArrowLeft className="w-4 h-4 inline mr-2"/> Kembali</button></div>
     </div>
   );
 }
 
 // --- LOGIN SCREEN ---
-function LoginScreen({ onLogin, penatuaMap, penatuaPassMap }) {
+function LoginScreen({ onLogin, penatuaMap, penatuaPassMap, profilGereja }) {
   const [role, setRole] = useState('jemaat');
   const [selectedRayon, setSelectedRayon] = useState('1');
   const [password, setPassword] = useState('');
@@ -450,8 +475,10 @@ function LoginScreen({ onLogin, penatuaMap, penatuaPassMap }) {
       <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md border border-gray-100">
         <div className="flex flex-col items-center mb-8">
           <img src="https://i.imgur.com/XV3hpOH.png" alt="Logo" className="w-24 h-24 mb-4 bg-white rounded-full shadow-sm p-1" />
-          <h1 className="text-2xl font-black text-gray-800 text-center tracking-tight">Sistem Informasi</h1>
-          <p className="text-gray-500 font-medium">PNIEL NOELAKU</p>
+          <h1 className="text-xl font-black text-gray-800 text-center tracking-tight uppercase leading-tight mb-2">{profilGereja?.namaSinode || 'GEREJA MASEHI INJILI DI TIMOR'}</h1>
+          <p className="text-gray-700 font-bold text-center uppercase text-sm">{profilGereja?.namaKlasis}</p>
+          <p className="text-gray-700 font-bold text-center uppercase text-sm">{profilGereja?.namaJemaat}</p>
+          {profilGereja?.namaMataJemaat && <p className="text-gray-500 font-bold text-center uppercase text-xs mt-1">{profilGereja?.namaMataJemaat}</p>}
         </div>
         {errorMsg && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4 font-semibold text-center">{errorMsg}</div>}
         <form onSubmit={handleLogin} className="space-y-4">
@@ -474,6 +501,13 @@ export default function App() {
   const [historyData, setHistoryData] = useState([]);
   const [penatuaMap, setPenatuaMap] = useState(DEFAULT_PENATUA);
   const [penatuaPassMap, setPenatuaPassMap] = useState({});
+  const [profilGereja, setProfilGereja] = useState({
+     namaSinode: "Gereja Masehi Injili di Timor",
+     namaKlasis: "KLASIS AMANUBAN TIMUR",
+     namaJemaat: "JEMAAT PNIEL NOELAKU",
+     namaMataJemaat: "MATA JEMAAT PNIEL NOELAKU",
+     alamat: "Pika - Noelaku"
+  });
   const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef(null);
   
@@ -518,7 +552,8 @@ export default function App() {
     const u3 = onSnapshot(collection(db, 'history'), (s) => setHistoryData(s.docs.map(d => ({ dbId: d.id, ...d.data() })).sort((a,b)=>b.timestamp - a.timestamp)));
     const u4 = onSnapshot(doc(db, 'settings', 'penatua_config'), (d) => { if(d.exists()) setPenatuaMap(d.data()); });
     const u5 = onSnapshot(doc(db, 'settings', 'penatua_pass'), (d) => { if(d.exists()) setPenatuaPassMap(d.data()); });
-    return () => { u1(); u2(); u3(); u4(); u5(); };
+    const u6 = onSnapshot(doc(db, 'settings', 'profil_gereja'), (d) => { if(d.exists()) setProfilGereja(d.data()); });
+    return () => { u1(); u2(); u3(); u4(); u5(); u6(); };
   }, [firebaseUser]);
 
   const rayonList = useMemo(() => Object.keys(penatuaMap).sort((a,b)=>parseInt(a)-parseInt(b)), [penatuaMap]);
@@ -593,7 +628,54 @@ export default function App() {
     }
     
     t += `</table></body></html>`;
-    const blob = new Blob([t], { type: "application/vnd.ms-excel" }); const l = document.createElement("a"); l.href = URL.createObjectURL(blob); l.download = `Data_${typeName}_PNIELNOELAKU.xls`; document.body.appendChild(l); l.click(); document.body.removeChild(l);
+    const blob = new Blob([t], { type: "application/vnd.ms-excel" }); const l = document.createElement("a"); l.href = URL.createObjectURL(blob); l.download = `Data_${typeName}_${profilGereja.namaJemaat.replace(/\s+/g, '_')}.xls`; document.body.appendChild(l); l.click(); document.body.removeChild(l);
+  };
+
+  const handleExportSinode = () => {
+    let t = `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><body><table border="1">`;
+    const headers = ["Rayon", "Alamat", "No.Telp", "Nama Kepala Keluarga", "Nama Lengkap", "NIK", "Jenis Kelamin", "Tempat Lahir", "Tanggal lahir", "Bulan Lahir", "Tahun lahir", "Golongan Darah", "Status dalam Keluarga", "Baptis", "Sidi", "Nikah", "Status nikah", "Status nikah/Nikah Adat", "Status nikah/Nikah Gereja/Masehi", "Status nikah/Nikah Catatan Sipil/BS", "Suku Ayah", "Suku Ibu", "Pendidikan", "Pekerjaan utama", "Penghasilan", "Apakah mempunyai jaminan/asuransi kesehatan?", "Jaminan Kesehatan", "Jika asuransi lainnya, sebutkan!", "Janda / Duda", "Yatim / Piatu", "Disabilitas", "Jika ya, sebutkan ragam disabilitas", "_index", "_parent_index", "Usia"];
+    t += `<tr>${headers.map(h => `<th style="background-color:#4CAF50;color:white;">${h}</th>`).join('')}</tr>`;
+    
+    let index = 1;
+    let parentIndexMap = {};
+    let currentParentIndex = 1;
+    
+    const activeData = jemaatData.filter(x => x.statusKeanggotaan !== 'Meninggal' && x.statusKeanggotaan !== 'Pindah' && x.statusHidup !== 'Meninggal');
+    const sortedData = activeData.sort((a,b) => (a.noRayon||'').localeCompare(b.noRayon||'') || (a.idKk||'').localeCompare(b.idKk||''));
+    
+    sortedData.forEach(d => {
+       if (!parentIndexMap[d.idKk]) { parentIndexMap[d.idKk] = currentParentIndex++; }
+       let tl = '', bl = '', th = '';
+       if (d.tanggalLahir) {
+           const parts = d.tanggalLahir.includes('-') ? d.tanggalLahir.split('-') : d.tanggalLahir.split('/');
+           if (parts.length === 3) {
+               if (parts[0].length === 4) { th = parts[0]; bl = NAMA_BULAN[parseInt(parts[1])-1]||''; tl = parseInt(parts[2], 10); }
+               else { th = parts[2]; bl = NAMA_BULAN[parseInt(parts[1])-1]||''; tl = parseInt(parts[0], 10); }
+           }
+       }
+       
+       const stBaptis = d.baptis === 'Ya' ? 'Sudah' : (d.baptis || '');
+       const stSidi = d.sidi === 'Ya' ? 'Sudah' : (d.sidi || '');
+       const stNikah = d.nikah === 'Ya' ? 'Sudah' : (d.nikah || '');
+       const arrNikah = Array.isArray(d.jenisNikah) ? d.jenisNikah : [];
+       const kkData = jemaatData.find(x => x.idKk === d.idKk && x.statusKeluarga === 'Kepala Keluarga');
+       const noTelp = kkData?.noHp || '0';
+       
+       const row = [
+           `Rayon ${d.noRayon||''}`, d.alamat, `="${noTelp}"`, d.kepalaKeluarga, d.namaLengkap, `="${d.nik||''}"`, d.jk, d.tempatLahir, tl, bl, th, d.goldar, d.statusKeluarga,
+           stBaptis, stSidi, stNikah, arrNikah.join(' '), 
+           arrNikah.includes('Nikah Adat') ? 1 : 0, arrNikah.includes('Nikah Gereja/Masehi') ? 1 : 0, arrNikah.includes('Nikah Catatan Sipil/BS') ? 1 : 0,
+           d.sukuAyah, d.sukuIbu, d.pendidikan, d.pekerjaan, d.penghasilan, d.asuransi, d.jaminan, '', d.jandaDuda, d.yatimPiatu, d.disabilitas, d.jenisDisabilitas,
+           index++, parentIndexMap[d.idKk], calculateAge(d.tanggalLahir)
+       ];
+       t += `<tr>${row.map(v => `<td>${safeStr(v)}</td>`).join('')}</tr>`;
+    });
+    
+    t += `</table></body></html>`;
+    const blob = new Blob([t], { type: "application/vnd.ms-excel" }); 
+    const l = document.createElement("a"); l.href = URL.createObjectURL(blob); 
+    l.download = `Laporan_Sinode_${profilGereja.namaJemaat.replace(/\s+/g, '_')}.xls`; 
+    document.body.appendChild(l); l.click(); document.body.removeChild(l);
   };
 
   const handleImportCSV = async (e) => {
@@ -841,7 +923,7 @@ export default function App() {
       d = filterHistoryAction !== 'Semua' ? historyData.filter(x => x.action === filterHistoryAction) : [...historyData];
     }
 
-    if (activeTab !== 'Riwayat Sistem' && activeTab !== 'Pengaturan Rayon' && filterRayon !== 'Semua') d = d.filter(x => String(x.noRayon) === filterRayon);
+    if (activeTab !== 'Riwayat Sistem' && activeTab !== 'Manajemen Data & Pengaturan' && filterRayon !== 'Semua') d = d.filter(x => String(x.noRayon) === filterRayon);
     if (searchTerm) { const ls = searchTerm.toLowerCase(); d = d.filter(x => Object.values(x).some(v => typeof v === 'string' && v.toLowerCase().includes(ls))); }
 
     if (sortConfig.key) {
@@ -866,7 +948,7 @@ export default function App() {
 
   useEffect(() => { setCurrentPage(1); }, [activeTab, activeSubTabStatus, subTabJemaat, subTabMajelis, searchTerm, itemsPerPage, filterRayon, filterKategori, filterBulan, filterHistoryAction]);
 
-  if (!appUser) return <LoginScreen onLogin={setAppUser} penatuaMap={penatuaMap} penatuaPassMap={penatuaPassMap} />;
+  if (!appUser) return <LoginScreen onLogin={setAppUser} penatuaMap={penatuaMap} penatuaPassMap={penatuaPassMap} profilGereja={profilGereja} />;
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-800 pb-10">
@@ -1129,26 +1211,28 @@ export default function App() {
 
       {/* Cetakan Laporan Kertas */}
       <div className={printMode === null ? 'hidden' : 'block'}>
-         {printMode === 'kk' && <PrintKkTemplate kkToPrint={printId} jemaatData={jemaatData} penatuaMap={penatuaMap} onBack={() => setPrintMode(null)} />}
-         {printMode === 'majelis' && <PrintMajelisTemplate majelisToPrint={printId} majelisData={majelisData} penatuaMap={penatuaMap} onBack={() => setPrintMode(null)} />}
-         {printMode === 'list' && <PrintListTemplate listToPrint={activeSubTabStatus} tabCols={tabCols} filteredData={filteredData} filterRayon={filterRayon} filterKategori={filterKategori} onBack={() => setPrintMode(null)} />}
+         {printMode === 'kk' && <PrintKkTemplate kkToPrint={printId} jemaatData={jemaatData} penatuaMap={penatuaMap} profilGereja={profilGereja} onBack={() => setPrintMode(null)} />}
+         {printMode === 'majelis' && <PrintMajelisTemplate majelisToPrint={printId} majelisData={majelisData} penatuaMap={penatuaMap} profilGereja={profilGereja} onBack={() => setPrintMode(null)} />}
+         {printMode === 'list' && <PrintListTemplate listToPrint={activeSubTabStatus} tabCols={tabCols} filteredData={filteredData} filterRayon={filterRayon} filterKategori={filterKategori} profilGereja={profilGereja} onBack={() => setPrintMode(null)} />}
       </div>
 
       {/* Main UI */}
       <div className={printMode !== null ? 'hidden' : 'block'}>
-        <header className="fixed top-4 left-4 right-4 bg-white/95 backdrop-blur-md rounded-3xl shadow-sm z-40 px-6 py-4 border border-gray-200 flex items-center justify-between print:hidden">
+        <header className="sticky top-4 z-50 mx-4 md:mx-6 mt-4 mb-6 bg-white/95 backdrop-blur-md rounded-3xl shadow-sm px-6 py-4 border border-gray-200 flex flex-wrap xl:flex-nowrap items-center justify-between gap-4 print:hidden">
           <div className="flex items-center gap-4">
-            <img src="https://i.imgur.com/XV3hpOH.png" alt="Logo" className="w-12 h-12 object-contain bg-white rounded-full p-1 shadow-sm border border-gray-100" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight">Sistem Data Terpadu</h1>
-              <div className="text-xs text-blue-600 font-bold hidden md:flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> DB Terkoneksi • Akses: <span className="uppercase">{appUser?.role}</span></div>
+            <img src="https://i.imgur.com/XV3hpOH.png" alt="Logo" className="w-12 h-12 md:w-16 md:h-16 object-contain bg-white rounded-full p-1 shadow-sm border border-gray-100" />
+            <div className="flex flex-col">
+              <h1 className="text-sm md:text-lg font-black text-gray-900 tracking-tight uppercase leading-none mb-1">{profilGereja?.namaSinode || 'GEREJA MASEHI INJILI DI TIMOR'}</h1>
+              <p className="text-xs md:text-sm font-bold text-gray-700 uppercase leading-none">{profilGereja?.namaKlasis} • {profilGereja?.namaJemaat}</p>
+              {profilGereja?.namaMataJemaat && <p className="text-[10px] md:text-xs font-semibold text-gray-500 uppercase mt-1">{profilGereja?.namaMataJemaat}</p>}
+              <div className="text-[10px] md:text-xs text-blue-600 font-bold hidden md:flex items-center gap-1 mt-1.5"><div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> DB Terkoneksi • Akses: <span className="uppercase">{appUser?.role}</span></div>
             </div>
           </div>
-          <div className="flex items-center gap-2 lg:gap-4">
+          <div className="flex items-center gap-2 lg:gap-4 flex-wrap">
             <div className="hidden lg:flex gap-1 bg-gray-50 p-1.5 rounded-full border border-gray-200">
-              {['Data KK', 'Data Jemaat', 'Profil Majelis', 'Status Jemaat', ...(appUser?.role === 'admin' ? ['Riwayat Sistem', 'Pengaturan Rayon'] : [])].map(tab => (
+              {['Data KK', 'Data Jemaat', 'Profil Majelis', 'Status Jemaat', ...(appUser?.role === 'admin' ? ['Riwayat Sistem', 'Manajemen Data & Pengaturan'] : [])].map(tab => (
                 <button key={tab} onClick={() => {setActiveTab(tab); setSortConfig({key:null, direction:'asc'});}} className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${activeTab === tab ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-200'}`}>
-                  {tab === 'Riwayat Sistem' ? <span className="flex items-center gap-1"><History className="w-4 h-4"/> Admin Log</span> : tab === 'Pengaturan Rayon' ? <span className="flex items-center gap-1"><Settings className="w-4 h-4"/> Pengaturan</span> : <span className="flex items-center gap-1">{tab === 'Profil Majelis' ? <UserCheck className="w-4 h-4"/> : null} {tab}</span>}
+                  {tab === 'Riwayat Sistem' ? <span className="flex items-center gap-1"><History className="w-4 h-4"/> Admin Log</span> : tab === 'Manajemen Data & Pengaturan' ? <span className="flex items-center gap-1"><Settings className="w-4 h-4"/> Pengaturan</span> : <span className="flex items-center gap-1">{tab === 'Profil Majelis' ? <UserCheck className="w-4 h-4"/> : null} {tab}</span>}
                 </button>
               ))}
             </div>
@@ -1157,10 +1241,10 @@ export default function App() {
           </div>
         </header>
 
-        <main className="pt-28 px-4 md:px-8 max-w-[98%] mx-auto print:pt-4 print:px-0">
+        <main className="px-4 md:px-6 max-w-[98%] mx-auto print:pt-4 print:px-0">
           <div className="flex lg:hidden overflow-x-auto gap-2 pb-4 mb-4 scrollbar-hide print:hidden">
-             {['Data KK', 'Data Jemaat', 'Profil Majelis', 'Status Jemaat', ...(appUser?.role === 'admin' ? ['Riwayat Sistem', 'Pengaturan Rayon'] : [])].map((tab) => (
-              <button key={tab} onClick={() => {setActiveTab(tab); setSortConfig({key:null, direction:'asc'});}} className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all ${activeTab === tab ? 'bg-blue-600 text-white shadow-md' : 'bg-white border-2 text-gray-600 hover:bg-gray-100'}`}>{tab}</button>
+             {['Data KK', 'Data Jemaat', 'Profil Majelis', 'Status Jemaat', ...(appUser?.role === 'admin' ? ['Riwayat Sistem', 'Manajemen Data & Pengaturan'] : [])].map((tab) => (
+              <button key={tab} onClick={() => {setActiveTab(tab); setSortConfig({key:null, direction:'asc'});}} className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all ${activeTab === tab ? 'bg-blue-600 text-white shadow-md' : 'bg-white border-2 text-gray-600 hover:bg-gray-100'}`}>{tab === 'Manajemen Data & Pengaturan' ? 'Pengaturan' : tab}</button>
             ))}
           </div>
 
@@ -1209,25 +1293,43 @@ export default function App() {
           ) : (
             <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden print:border-none print:shadow-none">
               
-              {activeTab === 'Pengaturan Rayon' ? (
+              {activeTab === 'Manajemen Data & Pengaturan' ? (
                 <div className="p-8">
-                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                      <div><h2 className="text-2xl font-black text-gray-800 flex items-center gap-2"><Settings className="w-6 h-6 text-gray-600"/> Manajemen Nama Penatua</h2><p className="text-gray-500 mt-2">Ubah nama penatua dan atur password login khusus untuk masing-masing Rayon.</p></div>
-                      <button onClick={() => { const max = Math.max(...Object.keys(penatuaMap).map(Number)); setPenatuaMap({...penatuaMap, [max+1]: "Penatua Baru"}); setPenatuaPassMap({...penatuaPassMap, [max+1]: "penatua123"}); }} className="bg-green-100 hover:bg-green-200 text-green-700 font-bold py-2.5 px-5 rounded-xl transition-all active:scale-95 flex items-center gap-2"><Plus className="w-5 h-5"/> Tambah Rayon Baru</button>
+                   {/* Profil Gereja section */}
+                   <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm mb-6">
+                      <h3 className="text-xl font-black text-gray-800 mb-4 border-b pb-2 flex items-center gap-2"><Home className="w-6 h-6 text-blue-600"/> Profil Gereja / Organisasi</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <div><label className="text-sm font-bold text-gray-700 block mb-1">Nama Sinode</label><input type="text" className="w-full border-2 border-gray-300 p-2.5 rounded-xl focus:border-blue-500 outline-none text-sm font-semibold" value={profilGereja.namaSinode||''} onChange={e => setProfilGereja({...profilGereja, namaSinode: e.target.value})} /></div>
+                         <div><label className="text-sm font-bold text-gray-700 block mb-1">Nama Klasis</label><input type="text" className="w-full border-2 border-gray-300 p-2.5 rounded-xl focus:border-blue-500 outline-none text-sm font-semibold" value={profilGereja.namaKlasis||''} onChange={e => setProfilGereja({...profilGereja, namaKlasis: e.target.value})} /></div>
+                         <div><label className="text-sm font-bold text-gray-700 block mb-1">Nama Jemaat</label><input type="text" className="w-full border-2 border-gray-300 p-2.5 rounded-xl focus:border-blue-500 outline-none text-sm font-semibold" value={profilGereja.namaJemaat||''} onChange={e => setProfilGereja({...profilGereja, namaJemaat: e.target.value})} /></div>
+                         <div><label className="text-sm font-bold text-gray-700 block mb-1">Nama Mata Jemaat (Lokal)</label><input type="text" className="w-full border-2 border-gray-300 p-2.5 rounded-xl focus:border-blue-500 outline-none text-sm font-semibold" value={profilGereja.namaMataJemaat||''} onChange={e => setProfilGereja({...profilGereja, namaMataJemaat: e.target.value})} /></div>
+                         <div className="md:col-span-2"><label className="text-sm font-bold text-gray-700 block mb-1">Alamat Lengkap</label><input type="text" className="w-full border-2 border-gray-300 p-2.5 rounded-xl focus:border-blue-500 outline-none text-sm font-semibold" value={profilGereja.alamat||''} onChange={e => setProfilGereja({...profilGereja, alamat: e.target.value})} /></div>
+                      </div>
+                      <div className="mt-4 flex justify-end">
+                         <button onClick={async () => { try { await setDoc(doc(db, 'settings', 'profil_gereja'), profilGereja, {merge:true}); showAlert("Sukses", "Profil Gereja berhasil disimpan!"); } catch(e){ showAlert("Error", "Gagal menyimpan."); } }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all active:scale-95">Simpan Profil</button>
+                      </div>
                    </div>
-                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-gray-50 p-6 rounded-2xl border border-gray-200">
-                      {rayonList.map(r => (
-                        <div key={r} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative">
-                           {parseInt(r) > 6 && <button onClick={()=>{const n={...penatuaMap}; delete n[r]; setPenatuaMap(n); const p={...penatuaPassMap}; delete p[r]; setPenatuaPassMap(p);}} className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600 bg-red-50 rounded"><Trash2 className="w-4 h-4"/></button>}
-                           <label className="text-sm font-bold text-gray-700 mb-1 block">Penatua Rayon {r}</label>
-                           <input type="text" className="w-full border-2 border-gray-300 p-2.5 rounded-xl focus:border-blue-500 outline-none mb-4 text-sm" value={penatuaMap[r]} onChange={e => setPenatuaMap({...penatuaMap, [r]: e.target.value})} />
-                           <label className="text-xs font-bold text-gray-500 mb-1 block uppercase tracking-wider">Password Login Rayon {r}</label>
-                           <input type="text" placeholder="penatua123" className="w-full border-2 border-dashed border-gray-300 bg-gray-50 p-2.5 rounded-xl focus:border-blue-500 outline-none text-sm font-semibold" value={penatuaPassMap[r] || ''} onChange={e => setPenatuaPassMap({...penatuaPassMap, [r]: e.target.value})} />
-                        </div>
-                      ))}
-                   </div>
-                   <div className="mt-6 flex justify-end">
-                      <button onClick={async () => { try { await setDoc(doc(db, 'settings', 'penatua_config'), penatuaMap, {merge:true}); await setDoc(doc(db, 'settings', 'penatua_pass'), penatuaPassMap, {merge:true}); showAlert("Sukses", "Nama Penatua dan Password berhasil disimpan!"); } catch(e){ showAlert("Error", "Gagal menyimpan."); } }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all active:scale-95">Simpan Pengaturan</button>
+
+                   {/* Manajemen Nama Penatua section */}
+                   <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b pb-2">
+                         <div><h3 className="text-xl font-black text-gray-800 flex items-center gap-2"><Settings className="w-6 h-6 text-gray-600"/> Manajemen Nama Penatua</h3><p className="text-gray-500 mt-1 text-sm">Ubah nama penatua dan atur password login khusus untuk masing-masing Rayon.</p></div>
+                         <button onClick={() => { const max = Math.max(...Object.keys(penatuaMap).map(Number)); setPenatuaMap({...penatuaMap, [max+1]: "Penatua Baru"}); setPenatuaPassMap({...penatuaPassMap, [max+1]: "penatua123"}); }} className="bg-green-100 hover:bg-green-200 text-green-700 font-bold py-2.5 px-5 rounded-xl transition-all active:scale-95 flex items-center gap-2 text-sm"><Plus className="w-4 h-4"/> Tambah Rayon Baru</button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                         {rayonList.map(r => (
+                           <div key={r} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative">
+                              {parseInt(r) > 6 && <button onClick={()=>{const n={...penatuaMap}; delete n[r]; setPenatuaMap(n); const p={...penatuaPassMap}; delete p[r]; setPenatuaPassMap(p);}} className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600 bg-red-50 rounded"><Trash2 className="w-4 h-4"/></button>}
+                              <label className="text-sm font-bold text-gray-700 mb-1 block">Penatua Rayon {r}</label>
+                              <input type="text" className="w-full border-2 border-gray-300 p-2.5 rounded-xl focus:border-blue-500 outline-none mb-4 text-sm" value={penatuaMap[r]} onChange={e => setPenatuaMap({...penatuaMap, [r]: e.target.value})} />
+                              <label className="text-xs font-bold text-gray-500 mb-1 block uppercase tracking-wider">Password Login Rayon {r}</label>
+                              <input type="text" placeholder="penatua123" className="w-full border-2 border-dashed border-gray-300 bg-gray-50 p-2.5 rounded-xl focus:border-blue-500 outline-none text-sm font-semibold" value={penatuaPassMap[r] || ''} onChange={e => setPenatuaPassMap({...penatuaPassMap, [r]: e.target.value})} />
+                           </div>
+                         ))}
+                      </div>
+                      <div className="mt-6 flex justify-end">
+                         <button onClick={async () => { try { await setDoc(doc(db, 'settings', 'penatua_config'), penatuaMap, {merge:true}); await setDoc(doc(db, 'settings', 'penatua_pass'), penatuaPassMap, {merge:true}); showAlert("Sukses", "Nama Penatua dan Password berhasil disimpan!"); } catch(e){ showAlert("Error", "Gagal menyimpan."); } }} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all active:scale-95">Simpan Pengaturan Rayon</button>
+                      </div>
                    </div>
                 </div>
               ) : (
@@ -1253,7 +1355,18 @@ export default function App() {
                       {activeTab === 'Data Jemaat' && subTabJemaat !== 'Infografis' && appUser?.role === 'admin' && (
                         <div className="relative">
                             <button onClick={() => setShowMenuOps(!showMenuOps)} className="flex items-center gap-2 bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95">Opsi Lain <ChevronDown className={`w-4 h-4 transform transition-transform ${showMenuOps ? 'rotate-180' : ''}`} /></button>
-                            {showMenuOps && ( <><div className="fixed inset-0 z-40" onClick={() => setShowMenuOps(false)}></div><div className="absolute left-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden flex flex-col animate-in fade-in slide-in-from-top-2 duration-200"><button onClick={() => { setShowMenuOps(false); handleExportCSV(); }} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-left text-sm font-bold text-gray-700"><Download className="w-4 h-4 text-emerald-600"/> Download Excel</button><button onClick={() => { setShowMenuOps(false); fileInputRef.current.click(); }} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-left text-sm font-bold text-gray-700"><FileUp className="w-4 h-4 text-amber-500"/> Import CSV</button><div className="h-px bg-gray-100 w-full"></div><button onClick={() => { setShowMenuOps(false); handleCleanAll('jemaat'); }} className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 text-left text-sm font-bold text-red-600"><Trash2 className="w-4 h-4"/> Kosongkan Data</button></div></> )}
+                            {showMenuOps && (
+                               <>
+                                  <div className="fixed inset-0 z-40" onClick={() => setShowMenuOps(false)}></div>
+                                  <div className="absolute left-0 mt-2 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden flex flex-col animate-in fade-in slide-in-from-top-2 duration-200">
+                                     <button onClick={() => { setShowMenuOps(false); handleExportCSV(); }} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-left text-sm font-bold text-gray-700"><Download className="w-4 h-4 text-emerald-600"/> Download Excel</button>
+                                     <button onClick={() => { setShowMenuOps(false); handleExportSinode(); }} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-left text-sm font-bold text-gray-700"><Download className="w-4 h-4 text-blue-600"/> Laporan ke Sinode</button>
+                                     <button onClick={() => { setShowMenuOps(false); fileInputRef.current.click(); }} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-left text-sm font-bold text-gray-700"><FileUp className="w-4 h-4 text-amber-500"/> Import CSV</button>
+                                     <div className="h-px bg-gray-100 w-full"></div>
+                                     <button onClick={() => { setShowMenuOps(false); handleCleanAll('jemaat'); }} className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 text-left text-sm font-bold text-red-600"><Trash2 className="w-4 h-4"/> Kosongkan Data</button>
+                                  </div>
+                               </>
+                            )}
                         </div>
                       )}
                       
@@ -1293,7 +1406,7 @@ export default function App() {
                     <div className="hidden print:block mb-4 border-b-2 border-black pb-4">
                        <h1 className="text-2xl font-bold uppercase text-center">Data {activeTab === 'Status Jemaat' ? activeSubTabStatus : activeTab === 'Data Jemaat' ? subTabJemaat : activeTab === 'Profil Majelis' ? subTabMajelis : activeTab}</h1>
                        <p className="text-center font-bold text-sm mt-1">{activeTab === 'Status Jemaat' && activeSubTabStatus === 'Pelayanan Kategori' ? `Kategori: ${filterKategori} | ` : ''}{activeTab === 'Status Jemaat' && activeSubTabStatus === 'Ulang Tahun' ? `Bulan: ${NAMA_BULAN[filterBulan-1]} | ` : ''}Rayon: {filterRayon}</p>
-                       <p className="text-center font-medium text-sm">PNIEL NOELAKU</p>
+                       <p className="text-center font-medium text-sm">{profilGereja.namaJemaat}</p>
                     </div>
 
                     {activeTab === 'Data Jemaat' && subTabJemaat === 'Infografis' ? (
